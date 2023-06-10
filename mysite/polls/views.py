@@ -4,6 +4,8 @@ from django.template import loader
 from django.shortcuts import get_object_or_404, render
 # 404
 from django.http import Http404
+from django.utils import timezone
+
 
 # for our vote def
 from django.urls import reverse
@@ -25,8 +27,11 @@ class IndexView(generic.ListView):
     context_object_name = "latest_question_list"
 
     def get_queryset(self):
-        """Return the last five published questions."""
-        return Question.objects.order_by("-pub_date")[:5]
+        """
+        Return the last five published questions (not including those set to be
+        published in the future).
+        """
+        return Question.objects.filter(pub_date__lte=timezone.now())
 
     #output = ", ".join([q.question_text for q in latest_question_list])
     #return HttpResponse(output)
@@ -53,6 +58,7 @@ class DetailView(generic.DetailView):
     #    raise Http404("Quesiton does not exist")
     #return render(request, "polls/detail.html", {"question": question})
     # new logic using get_object_or_404()
+
 
 class ResultsView(generic.DetailView):
     model = Question
